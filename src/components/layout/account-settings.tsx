@@ -9,7 +9,7 @@ import { getNameInitials } from "@/utilities";
 import { UPDATE_USER_MUTATION } from "@/graphql/mutations";
 
 import { Text } from "./text";
-import CustomAvatar from "./custom-avator"; // Check file name if needed
+import CustomAvatar from "./custom-avator";
 
 import {
   UpdateUserMutation,
@@ -23,7 +23,7 @@ type Props = {
 };
 
 export const AccountSettings = ({ opened, setOpened, userId }: Props) => {
-  const { saveButtonProps, formProps, queryResult } = useForm<
+  const { saveButtonProps, formProps, formLoading } = useForm<
     GetFields<UpdateUserMutation>,
     HttpError,
     GetVariables<UpdateUserMutationVariables>
@@ -37,18 +37,16 @@ export const AccountSettings = ({ opened, setOpened, userId }: Props) => {
     },
   });
 
-  // Debug output
-  console.log("queryResult:", queryResult);
-
-  const isLoading = queryResult?.isLoading;
-  const data = queryResult?.data?.data;
+  // Get user data from formProps initial values
+  const data = formProps?.initialValues;
   const { avatarUrl, name } = data || {};
 
   const closeModal = () => {
     setOpened(false);
   };
 
-  if (isLoading) {
+  // Show loading spinner if form is still loading
+  if (formLoading) {
     return (
       <Drawer
         open={opened}
@@ -63,14 +61,6 @@ export const AccountSettings = ({ opened, setOpened, userId }: Props) => {
         }}
       >
         <Spin />
-      </Drawer>
-    );
-  }
-
-  if (queryResult?.error) {
-    return (
-      <Drawer open={opened} onClose={closeModal} width={756}>
-        <div>Error loading account settings: {queryResult.error.message}</div>
       </Drawer>
     );
   }
